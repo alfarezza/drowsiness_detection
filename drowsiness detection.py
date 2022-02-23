@@ -50,7 +50,10 @@ while(True):
         r_eye= r_eye/255
         r_eye=  r_eye.reshape(24,24,-1)
         r_eye = np.expand_dims(r_eye,axis=0)
-        rpred = model.predict_classes(r_eye)
+        # rpred = model.predict_classes(r_eye)
+        # rpred = model.predict_step(r_eye)
+        # rpred = (model.predict(r_eye) > 0.5).astype("int32")
+        rpred = (np.round(model.predict(r_eye)).astype(int))[0]
         if(rpred[0]==1):
             lbl='Open' 
         if(rpred[0]==0):
@@ -65,7 +68,10 @@ while(True):
         l_eye= l_eye/255
         l_eye=l_eye.reshape(24,24,-1)
         l_eye = np.expand_dims(l_eye,axis=0)
-        lpred = model.predict_classes(l_eye)
+        # lpred = model.predict_classes(l_eye)
+        # lpred = model.predict_step(l_eye)
+        # lpred = (model.predict(l_eye) > 0.5).astype("int32")
+        lpred = (np.round(model.predict(l_eye)).astype(int))[0]
         if(lpred[0]==1):
             lbl='Open'   
         if(lpred[0]==0):
