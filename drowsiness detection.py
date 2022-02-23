@@ -50,11 +50,14 @@ while(True):
         r_eye= r_eye/255
         r_eye=  r_eye.reshape(24,24,-1)
         r_eye = np.expand_dims(r_eye,axis=0)
-        rpred = model.predict_classes(r_eye)
+        # rpred = model.predict_classes(r_eye)
+        # rpred = model.predict_step(r_eye)
+        # rpred = (model.predict(r_eye) > 0.5).astype("int32")
+        rpred = (np.round(model.predict(r_eye)).astype(int))[0]
         if(rpred[0]==1):
-            lbl='Open' 
+            lbl='Closed' 
         if(rpred[0]==0):
-            lbl='Closed'
+            lbl='Open'
         break
 
     for (x,y,w,h) in left_eye:
@@ -65,28 +68,38 @@ while(True):
         l_eye= l_eye/255
         l_eye=l_eye.reshape(24,24,-1)
         l_eye = np.expand_dims(l_eye,axis=0)
-        lpred = model.predict_classes(l_eye)
+        # lpred = model.predict_classes(l_eye)
+        # lpred = model.predict_step(l_eye)
+        # lpred = (model.predict(l_eye) > 0.5).astype("int32")
+        lpred = (np.round(model.predict(l_eye)).astype(int))[0]
         if(lpred[0]==1):
-            lbl='Open'   
+            lbl='Closed'   
         if(lpred[0]==0):
-            lbl='Closed'
+            lbl='Open'
         break
 
-    if(rpred[0]==0 and lpred[0]==0):
-        score=score+1
-        cv2.putText(frame,"Closed",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
-    # if(rpred[0]==1 or lpred[0]==1):
+    # check face detection
+    if(type(faces) is np.ndarray):
+        if(rpred[0]==0 and lpred[0]==0):
+            score=score-1
+            cv2.putText(frame,"Open",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+        # if(rpred[0]==1 or lpred[0]==1):
+        else:
+            score=score+1
+            cv2.putText(frame,"Closed",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
     else:
         score=score-1
-        cv2.putText(frame,"Open",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+        cv2.putText(frame,"no face",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
     
         
     if(score<0):
-        score=0   
-    cv2.putText(frame,'Score:'+str(score),(100,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+        score=0
+    # detect face then write score
+    if(type(faces) is np.ndarray):
+        cv2.putText(frame,'Score:'+str(score),(100,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
     if(score>15):
         #person is feeling sleepy so we beep the alarm
-        cv2.imwrite(os.path.join(path,'image.jpg'),frame)
+        cv2.imwrite(os.path.join(path,'img/image.jpg'),frame)
         try:
             sound.play()
             
